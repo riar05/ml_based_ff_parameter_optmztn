@@ -1,0 +1,16 @@
+# .txt output to itp file
+
+def write_gromacs_bondtypes(results_display, output_file="ml_bondtypes.itp"):
+    with open(output_file, 'w') as f:
+        f.write("[ bondtypes ]\n")
+        f.write("; i   j   func   b0(nm)   kb(kJ/mol/nm^2)\n")
+        for _, row in results_display.iterrows():
+            atom1 = row['atom1_element']
+            atom2 = row['atom2_element']
+            b0_nm = row['predicted_r0'] * 0.1  # Å to nm
+            kb_kj = row['predicted_kb'] * 418.4  # kcal/(mol·Å²) to kJ/(mol·nm²)
+            f.write(f"{atom1:2s}  {atom2:2s}  1  {b0_nm:.4f}  {kb_kj:.1f}\n")
+    print(f"GROMACS bondtypes written to {output_file}")
+
+results_display = predict_parameters_for_new_molecule(smiles, model_kb, model_r0, X.columns)
+write_gromacs_bondtypes(results_display, "ml_bondtypes.itp")
